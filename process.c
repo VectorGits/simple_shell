@@ -30,6 +30,7 @@ void read_line(char **line, size_t *len)
 /**
  * check_exit_command - Check if the user entered an "exit" command.
  * @line: The input line to check.
+ * @dataptr: A pointer to the shell data.
  * Return: 1 if the command is "exit," otherwise 0.
  */
 int check_exit_command(char *line, shell_t *dataptr)
@@ -49,6 +50,7 @@ int check_exit_command(char *line, shell_t *dataptr)
  * execute_command - Execute a command in a new process.
  * @args: An array of command arguments.
  * @full_path: The full path to the executable.
+ * Return: The exit status of the command.
  */
 int execute_command(char **args, char *full_path)
 {
