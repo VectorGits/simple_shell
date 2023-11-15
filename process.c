@@ -79,26 +79,26 @@ void handle_input(shell_t *dataptr, char *line, int arg_count)
 	char *full_path;
 	char **args = parse_input(line, arg_count);
 
-        if (args[0] != NULL)
-        {
-                if (strcmp(args[0], "env") == 0)
-                {
-                         print_env();
-                }
-                else
-                {
-                        full_path = search_path(args[0], dataptr);
-                        if (full_path != NULL)
-                        {
-                                execute_command(args, full_path);
-                                free(full_path);
-                        }
-                        else
-                        {
-                                error_printer(args[0], dataptr);
-                        }
-                }
-        }
+	if (args[0] != NULL)
+	{
+		if (strcmp(args[0], "env") == 0)
+		{
+			print_env();
+		}
+		else
+		{
+			full_path = search_path(args[0], dataptr);
+			if (full_path != NULL)
+			{
+				execute_command(args, full_path);
+				free(full_path);
+			}
+			else
+			{
+				error_printer(args[0], dataptr);
+			}
+		}
+	}
 
-        free(args);
+	free(args);
 }
