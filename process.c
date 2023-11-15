@@ -36,7 +36,7 @@ int check_exit_command(char *line)
 {
 	int exit_status;
 
-	if (strncmp(line, "exit", 4) == 0)
+	if (_strncmp(line, "exit", 4) == 0)
 	{
 		exit_status = handle_exit(line);
 		free(line);
@@ -92,7 +92,7 @@ void handle_input(shell_t *dataptr, char *line, int arg_count)
 		return;
 	}
 
-	if (strcmp(args[0], "env") == 0)
+	if (_strcmp(args[0], "env") == 0)
 	{
 		print_env();
 		free(args);

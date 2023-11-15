@@ -22,12 +22,12 @@ void prompt_user(int interactive)
 int handle_exit(char *line)
 {
 	int exit_status = 0;
-	char *exit_arg = strtok(line, " \n");
+	char *exit_arg = _strtok(line, " \n");
 
-	exit_arg = strtok(NULL, " \n");
+	exit_arg = _strtok(NULL, " \n");
 	if (exit_arg != NULL)
 	{
-		exit_status = atoi(exit_arg);
+		exit_status = _atoi(exit_arg);
 	}
 	return (exit_status);
 }
@@ -52,12 +52,12 @@ char **parse_input(char *line, int arg_count)
 		exit(1);
 	}
 
-	token = strtok(line, " \n");
+	token = _strtok(line, " \n");
 	while (token != NULL)
 	{
 		args[i] = token;
 		i++;
-		token = strtok(NULL, " \n");
+		token = _strtok(NULL, " \n");
 	}
 	args[i] = NULL;
 
@@ -77,7 +77,7 @@ char *search_path(char *command, shell_t *dataptr)
 	char *tok;
 	char *full_path;
 
-	if (strchr(command, '/') != NULL && access(command, X_OK) == 0)
+	if (_strchr(command, '/') != NULL && access(command, X_OK) == 0)
 		return (strdup(command));
 	if (dataptr->path == NULL)
 		return (NULL);
@@ -88,19 +88,19 @@ char *search_path(char *command, shell_t *dataptr)
 		return (NULL);
 	}
 	full_path = NULL;
-	tok = strtok(path_copy, ":");
+	tok = _strtok(path_copy, ":");
 	while (tok != NULL)
 	{
-		full_path = malloc(strlen(tok) + strlen(command) + 2);
+		full_path = malloc(_strlen(tok) + _strlen(command) + 2);
 		if (!full_path)
 		{
 			perror("Memory allocation failed");
 			free(path_copy);
 			return (NULL);
 		}
-		strcpy(full_path, tok);
-		strcat(full_path, "/");
-		strcat(full_path, command);
+		_strcpy(full_path, tok);
+		_strcat(full_path, "/");
+		_strcat(full_path, command);
 
 		if (access(full_path, X_OK) == 0)
 		{
@@ -108,7 +108,7 @@ char *search_path(char *command, shell_t *dataptr)
 			return (full_path);
 		}
 		free(full_path);
-		tok = strtok(NULL, ":");
+		tok = _strtok(NULL, ":");
 	}
 	free(path_copy);
 	return (NULL);

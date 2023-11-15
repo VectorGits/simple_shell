@@ -33,11 +33,11 @@ void error_printer(char *command, shell_t *dataptr)
 	}
 
 	write(STDERR_FILENO,
-	      dataptr->program_name, strlen(dataptr->program_name));
+	      dataptr->program_name, _strlen(dataptr->program_name));
 	write(STDERR_FILENO, ": ", 2);
-	write(STDERR_FILENO, buffer, strlen(buffer));
+	write(STDERR_FILENO, buffer, _strlen(buffer));
 	write(STDERR_FILENO, ": ", 2);
-	write(STDERR_FILENO, command, strlen(command));
+	write(STDERR_FILENO, command, _strlen(command));
 	write(STDERR_FILENO, ": not found\n", 12);
 
 	free(buffer);
