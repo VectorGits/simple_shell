@@ -69,6 +69,7 @@ void execute_command(char **args, char *full_path)
 		if (WIFEXITED(status))
 		{
 			int exit_status = WEXITSTATUS(status);
+
 			exit(exit_status);
 		}
 	}
