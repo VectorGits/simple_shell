@@ -11,8 +11,6 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
-extern char **environ;
-
 /**
  * struct shell_data - Data structure for the custom shell.
  * @program_name: The name of the program (shell).
@@ -32,6 +30,7 @@ typedef struct shell_data
 
 extern shell_t data;
 extern shell_t *dataptr;
+extern char **environ;
 
 void print_env(void);
 void sigint_handler(int signo);

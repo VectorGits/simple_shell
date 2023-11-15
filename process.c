@@ -36,7 +36,7 @@ int check_exit_command(char *line)
 {
 	int exit_status;
 
-	if (_strncmp(line, "exit", 4) == 0)
+	if (strncmp(line, "exit", 4) == 0)
 	{
 		exit_status = handle_exit(line);
 		free(line);
@@ -57,21 +57,14 @@ void execute_command(char **args, char *full_path)
 
 	if (pid == 0)
 	{
-		if (execve(full_path, args, environ) == -1)
-		{
-			perror("err");
-			exit(EXIT_FAILURE);
-		}
+		execve(full_path, args, environ);
+		free(full_path);
+		free(args);
+		exit(1);
 	}
 	else
 	{
 		wait(&status);
-		if (WIFEXITED(status))
-		{
-			int exit_status = WEXITSTATUS(status);
-
-			exit(exit_status);
-		}
 	}
 }
 
@@ -86,29 +79,26 @@ void handle_input(shell_t *dataptr, char *line, int arg_count)
 	char *full_path;
 	char **args = parse_input(line, arg_count);
 
-	if (args[0] == NULL)
-	{
-		free(args);
-		return;
-	}
+        if (args[0] != NULL)
+        {
+                if (strcmp(args[0], "env") == 0)
+                {
+                         print_env();
+                }
+                else
+                {
+                        full_path = search_path(args[0], dataptr);
+                        if (full_path != NULL)
+                        {
+                                execute_command(args, full_path);
+                                free(full_path);
+                        }
+                        else
+                        {
+                                error_printer(args[0], dataptr);
+                        }
+                }
+        }
 
-	if (_strcmp(args[0], "env") == 0)
-	{
-		print_env();
-		free(args);
-		return;
-	}
-
-	full_path = search_path(args[0], dataptr);
-	if (full_path != NULL)
-	{
-		execute_command(args, full_path);
-		free(full_path);
-	}
-	else
-	{
-		error_printer(args[0], dataptr);
-	}
-
-	free(args);
+        free(args);
 }
