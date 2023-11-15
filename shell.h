@@ -26,6 +26,7 @@ typedef struct shell_data
 	char *line;
 	char *path;
 	char **args;
+	int last_status;
 } shell_t;
 
 extern shell_t data;
@@ -38,11 +39,11 @@ void error_printer(char *command, shell_t *dataptr);
 char *search_path(char *command, shell_t *dataptr);
 void setup_shell(shell_t *dataptr, char **argv);
 void prompt_user(int interactive);
-int handle_exit(char *line);
+int handle_exit(char *line, shell_t *dataptr);
 char **parse_input(char *line, int arg_count);
 void read_line(char **line, size_t *len);
-int check_exit_command(char *line);
-void execute_command(char **args, char *full_path);
+int check_exit_command(char *line, shell_t *dataptr);
+int execute_command(char **args, char *full_path);
 void handle_input(shell_t *dataptr, char *line, int arg_count);
 
 int _atoi(const char *nptr);

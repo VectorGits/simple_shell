@@ -16,20 +16,52 @@ void prompt_user(int interactive)
 /**
  * handle_exit - Handle the 'exit' command with optional exit status.
  * @line: User input containing the 'exit' command and optional status.
+ * @dataptr: Pointer to the shell_t structure.
  *
  * Return: The exit status provided in the 'exit' command.
  */
-int handle_exit(char *line)
+int handle_exit(char *line, shell_t *dataptr)
 {
-	int exit_status = 0;
-	char *exit_arg = _strtok(line, " \n");
+	char buffer[12], *buffer_ptr = buffer, *exit_arg = strtok(line, " \n");
 
-	exit_arg = _strtok(NULL, " \n");
+	exit_arg = strtok(NULL, " \n");
 	if (exit_arg != NULL)
 	{
-		exit_status = _atoi(exit_arg);
+		char *endptr;
+		long exit_status = strtol(exit_arg, &endptr, 10);
+
+		if (*endptr == '\0' && exit_status >= 0 && exit_status
+		    <= INT_MAX)
+		{
+			return ((int)exit_status);
+		}
+		else
+		{
+			int num_digits = 0, temp_count = dataptr->line_count;
+
+			do {
+				num_digits++;
+				temp_count /= 10;
+			} while (temp_count > 0);
+			buffer_ptr += num_digits;
+			*buffer_ptr-- = '\0';
+			temp_count = dataptr->line_count;
+			while (temp_count > 0)
+			{
+				*buffer_ptr-- = (temp_count % 10) + '0';
+				temp_count /= 10;
+			}
+			write(STDERR_FILENO, dataptr->program_name,
+			      strlen(dataptr->program_name));
+			write(STDERR_FILENO, ": ", 2);
+			write(STDERR_FILENO, buffer, strlen(buffer));
+			write(STDERR_FILENO, ": exit: Illegal number: ", 24);
+			write(STDERR_FILENO, exit_arg, strlen(exit_arg));
+			write(STDERR_FILENO, "\n", 1);
+			return (2);
+		}
 	}
-	return (exit_status);
+	return (dataptr->last_status);
 }
 
 /**
@@ -52,12 +84,12 @@ char **parse_input(char *line, int arg_count)
 		exit(1);
 	}
 
-	token = _strtok(line, " \n");
+	token = strtok(line, " \n");
 	while (token != NULL)
 	{
 		args[i] = token;
 		i++;
-		token = _strtok(NULL, " \n");
+		token = strtok(NULL, " \n");
 	}
 	args[i] = NULL;
 
@@ -77,7 +109,7 @@ char *search_path(char *command, shell_t *dataptr)
 	char *tok;
 	char *full_path;
 
-	if (_strchr(command, '/') != NULL && access(command, X_OK) == 0)
+	if (strchr(command, '/') != NULL && access(command, X_OK) == 0)
 		return (strdup(command));
 	if (dataptr->path == NULL)
 		return (NULL);
@@ -88,19 +120,19 @@ char *search_path(char *command, shell_t *dataptr)
 		return (NULL);
 	}
 	full_path = NULL;
-	tok = _strtok(path_copy, ":");
+	tok = strtok(path_copy, ":");
 	while (tok != NULL)
 	{
-		full_path = malloc(_strlen(tok) + _strlen(command) + 2);
+		full_path = malloc(strlen(tok) + strlen(command) + 2);
 		if (!full_path)
 		{
 			perror("Memory allocation failed");
 			free(path_copy);
 			return (NULL);
 		}
-		_strcpy(full_path, tok);
-		_strcat(full_path, "/");
-		_strcat(full_path, command);
+		strcpy(full_path, tok);
+		strcat(full_path, "/");
+		strcat(full_path, command);
 
 		if (access(full_path, X_OK) == 0)
 		{
@@ -108,7 +140,7 @@ char *search_path(char *command, shell_t *dataptr)
 			return (full_path);
 		}
 		free(full_path);
-		tok = _strtok(NULL, ":");
+		tok = strtok(NULL, ":");
 	}
 	free(path_copy);
 	return (NULL);
@@ -124,5 +156,6 @@ void setup_shell(shell_t *dataptr, char **argv)
 	dataptr->program_name = argv[0];
 	dataptr->line_count = 0;
 	dataptr->path = getenv("PATH");
+	dataptr->last_status = 0;
 	signal(SIGINT, sigint_handler);
 }

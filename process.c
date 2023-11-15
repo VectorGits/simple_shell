@@ -32,13 +32,13 @@ void read_line(char **line, size_t *len)
  * @line: The input line to check.
  * Return: 1 if the command is "exit," otherwise 0.
  */
-int check_exit_command(char *line)
+int check_exit_command(char *line, shell_t *dataptr)
 {
 	int exit_status;
 
 	if (strncmp(line, "exit", 4) == 0)
 	{
-		exit_status = handle_exit(line);
+		exit_status = handle_exit(line, dataptr);
 		free(line);
 		exit(exit_status);
 	}
@@ -50,7 +50,7 @@ int check_exit_command(char *line)
  * @args: An array of command arguments.
  * @full_path: The full path to the executable.
  */
-void execute_command(char **args, char *full_path)
+int execute_command(char **args, char *full_path)
 {
 	int status;
 	pid_t pid = fork();
@@ -65,7 +65,16 @@ void execute_command(char **args, char *full_path)
 	else
 	{
 		wait(&status);
+		if (WIFEXITED(status))
+		{
+			return (WEXITSTATUS(status));
+		}
+		else if (WIFSIGNALED(status))
+		{
+			return (WTERMSIG(status) + 128);
+		}
 	}
+	return (0);
 }
 
 /**
@@ -78,6 +87,7 @@ void handle_input(shell_t *dataptr, char *line, int arg_count)
 {
 	char *full_path;
 	char **args = parse_input(line, arg_count);
+	int last_status = 0;
 
 	if (args[0] != NULL)
 	{
@@ -90,7 +100,7 @@ void handle_input(shell_t *dataptr, char *line, int arg_count)
 			full_path = search_path(args[0], dataptr);
 			if (full_path != NULL)
 			{
-				execute_command(args, full_path);
+				last_status = execute_command(args, full_path);
 				free(full_path);
 			}
 			else
@@ -101,4 +111,5 @@ void handle_input(shell_t *dataptr, char *line, int arg_count)
 	}
 
 	free(args);
+	dataptr->last_status = last_status;
 }

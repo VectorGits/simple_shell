@@ -23,7 +23,7 @@ int main(int argc __attribute__((unused)), char **argv)
 
 		prompt_user(interactive);
 		read_line(&line, &len);
-		check_exit_command(line);
+		check_exit_command(line, dataptr);
 		handle_input(dataptr, line, arg_count);
 
 		free(line);
